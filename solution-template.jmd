@@ -1,6 +1,6 @@
 ---
 title: "BEE 4750/5750 Homework 0"
-author: "Your name here (your netID here)"
+author: "Susie Foster (saf253)"
 date: `j import Dates; Dates.Date(Dates.now())`
 weave_options:
   term: true
@@ -19,33 +19,155 @@ Pkg.instantiate()
 # Problem 1
 
 ## Problem 1.1
+```julia
+function square_number(x)
+    output=x.^2
+    return output
+end
+```
 
 ## Problem 1.2
+We can see that $5^2 =$ `j square_number(5)`.
 
 ## Problem 1.3
+```julia 
+using Plots
+x_axis= range(-10, 10, length = 100);
+y_axis= square_number(x_axis);
+plot(x_axis, y_axis, label="squared function", legend=:topright, title=:"Figure I")
+``` 
 
 # Problem 2
 
 ## Problem 2.1
+We want to find $\sqrt{x}$ by guessing a variable $a$ 
+Our guess $a$ can get closer and closer to the actual $\sqrt{x}$ by finding the average between $x/a$ and $a$
+This can be seen by rearranging the equation:
+```math
+\begin{align}
+\sqrt{x} &= {a} \\ 
+{x} &= {a}^2  \\
+\frac{x}{a} &= {a}  
+\end{align}
+```
+Therefore, when $a=\frac{x}{a}$, the square root of $x$ has been found. Since a starts as a guess, the true value of $a$ must lie between $a$ and $\frac{x}{a}$
 
 ## Problem 2.2
+```julia
+
+function newton_sqrt(x, a)
+  a = (a + x/a)/2
+  while abs(x/a - a)>0.0000001
+    a = (a + x/a) / 2
+  end     
+  return a
+end
+
+x= 2;
+a= rand()*2; # this is to get a random number in the range [0, 2]
+a= newton_sqrt(x, a);
+```
+We can see that $\sqrt{2}$ must be a `j a`
+
 
 # Problem 3
 
 ## Problem 3.1
+```julia
+v=rand(20)
+```
 
 ## Problem 3.2
+```julia
+function mean(v)
+  sum= 0
+  for i=1:length(v)
+    sum= sum + v[i]
+  end
+  m= sum/length(v)
+  return m
+end
+
+function demean!(v)
+  m= mean(v)
+  for i in 1:length(v)
+  v[i] -= m
+  end
+  return v
+end
+
+m_test= mean(v)
+dm_test= demean!(v)
+```
 
 ## Problem 3.3
+```julia
+vect= [0 0 1 1 1 1 1 1 0 0];
+```
 
 ## Problem 3.4
+```julia
+A= rand(5,5)
+s= sum(A, dims = 1);
+for i=1:5
+  A[i,:]= A[i,:].-s[1,:];
+end
+return A
+```
 
 # Problem 4
 
 ## Problem 4.1
+```julia
+# load the Pkg package manager
+import Pkg
+# activate the project environment. The "." references the current working directory. This can be changed to any particular path.
+Pkg.activate(".")
+# instantiate the project environment. This installs any needed packages.
+Pkg.instantiate()
+
+Pkg.add("Distributions")
+# load Distributions.jl
+using Distributions
+
+# variables 
+mu= log10(0.03);
+omega= 0.005;
+T= 100;
+# setting up distribution
+my_lognormal_dist= LogNormal(mu, omega); # need to find code for log-normal distibution
+yt= rand(my_lognormal_dist, 1, T); 
+display(yt)
+```
 
 ## Problem 4.2
+```julia
+function Pinlake(Xt_0,at,yt,b,q,T)
+  Xt= zeros(T, 1);
+  Xt[1]= Xt_0 + at + yt[1] + (Xt_0^q)/(1+Xt_0^q)-b*Xt_0;
+  for i=2:T
+    Xt[i]= Xt[i-1] .+ at .+ yt[i] .+ (Xt[i-1].^q)/(1 .+ Xt[i-1].^q).-b.*Xt[i-1];
+  end
+  return Xt
+end
+
+```
 
 ## Problem 4.3
+```julia
+at= 0.4;
+q= 2;
+b= 0.42;
+#yt distributed along log-normal distrib with mean mu and st dev omega
+# see 4.1 for yt
+Xt_0= 0;
+
+Xt= Pinlake(Xt_0, at, yt, b, q, T);
+
+years= range(1, T, length = T);
+
+plot(years, Xt, label="phosphorus over time", legend=:topright, xlabel=:"time (in years)", ylabel=:"Concentration of P (dimensionless)", title=:"Model of Shallow-Lake Eutrophication")
+```
 
 # References
+various resources all found on class website were used, I forgot to keep track of which for this project
